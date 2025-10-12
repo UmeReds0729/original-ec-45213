@@ -4,18 +4,9 @@
 
 | Column                  | Type        | Options                         |
 | ----------------------- | ----------- | ------------------------------- |
-| last_name               | string      | null: false                     |
-| first_name              | string      | null: false                     |
-| last_name_kana          | string      | null: false                     |
-| first_name_kana         | string      | null: false                     |
+| nickname                | string      | null: false                     |
 | email                   | string      | null: false, unique: true       |
 | encrypted_password      | string      | null: false                     |
-| billing_postal_code     | string      | null: false                     |
-| billing_prefecture_id   | integer     | null: false                     |
-| billing_city            | string      | null: false                     |
-| billing_address_line1   | string      | null: false                     |
-| billing_address_line2   | string      |                                 |
-| billing_phone           | string      | null: false                     |
 
 ### Association (users)
  - has_many :orders
