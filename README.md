@@ -2,110 +2,142 @@
 
 ## usersテーブル
 
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| nickname                | string      | null: false                     |
-| email                   | string      | null: false, unique: true       |
-| encrypted_password      | string      | null: false                     |
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| nickname                | string      | null: false                     |                                               |
+| email                   | string      | null: false, unique: true       |                                               |
+| encrypted_password      | string      | null: false                     |                                               |
+| last_name               | string      |                                 | 編集時に登録可能                                |
+| first_name              | string      |                                 | 編集時に登録可能                                |
+| last_name_kana          | string      |                                 | 編集時に登録可能                                |
+| first_name_kana         | string      |                                 | 編集時に登録可能                                |
+| postal_code             | string      |                                 | 編集時に登録可能                                |
+| prefecture_id           | integer     |                                 | 編集時に登録可能、ActiveHashなどで都道府県管理    |
+| city                    | string      |                                 | 編集時に登録可能                                |
+| address                 | string      |                                 | 編集時に登録可能                                |
+| phone_number            | string      |                                 | 編集時に登録可能                                |
+| family_structure        | string      |                                 | 編集時に登録可能、家族構成                       |
+| favorite_supermarkets   | string      |                                 | 編集時に登録可能、よく行くスーパー（カンマ区切り等）|
 
 ### Association (users)
- - has_many :orders
+ - has_many :stocks, dependent: :destroy
+ - has_many :favorite_menus, dependent: :destroy
+ - has_many :shopping_lists, dependent: :destroy
 
 
-## categoriesテーブル
+## stocksテーブル（食材ストック）
 
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| name                    | string      | null: false                     |
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| user                    | references  | null: false, foreign_key: true  | 所有ユーザー                                   |
+| name                    | string      | null: false                     | 食材名                                        |
+| quantity                | integer     |                                 | 数量（整数のみ）                               |
+| unit                    | string      |                                 | 単位                                          |
 
-### Association (categories)
- - has_many :items
-
-
-## itemsテーブル
-
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| name                    | string      | null: false                     |
-| description             | text        | null: false                     |
-| stock                   | integer     | null: false                     |
-| price                   | integer     | null: false                     |
-| category                | references  | null: false, foreign_key: true  | # 生成されるのは category_id
-
-### Association (items)
-- belongs_to :category
-- has_many :item_images
-- has_many :order_items
+### Association (stocks)
+ - belongs_to :user
 
 
-## item_imagesテーブル
+## menusテーブル（AI提案・保存メニュー）
 
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| image_url               | string      | null: false                     |
-| item                    | references  | null: false, foreign_key: true  |
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| title                   |	string      |	null: false                     |	メニュー名                                     |
+| description             |	text		    |                                 | 概要・作り方など                               |
+| people                  | integer     |                                 | 想定人数                                       |
 
-### Association (item_images)
-- belongs_to :item
-
-
-## ordersテーブル
-
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| total_amount            | integer     | null: false                     |
-| status_id               | integer     | null: false                     |
-| purchased_at            | datetime    | null: false                     |
-| user                    | references  | null: false, foreign_key: true  |
-
-### Association (orders)
-- has_many :order_items
-- has_one :shipping_address
-- has_one :payment
+### Association (menus)
+ - has_many :menu_ingredients, dependent: :destroy
+ - has_many :ingredients, through: :menu_ingredients
+ - has_many :favorite_menus, dependent: :destroy
 
 
-## order_itemsテーブル
+## ingredientsテーブル（食材マスタ）
 
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| quantity                | integer     | null: false                     |
-| price                   | integer     | null: false                     |
-| order                   | references  | null: false, foreign_key: true  |
-| item                    | references  | null: false, foreign_key: true  |
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| name                    |	string      |	null: false                     |	食材名                                         |
+| category                |	string      |                                 |	食材カテゴリ（野菜・肉・魚など）                 |
 
-### Association (order_items)
-- belongs_to :order
-- belongs_to :item
-
-
-## shipping_addressesテーブル
-
-| Column                   | Type        | Options                         |
-| ------------------------ | ----------- | ------------------------------- |
-| shipping_last_name       | string      | null: false                     |
-| shipping_first_name      | string      | null: false                     |
-| shipping_last_name_kana  | string      | null: false                     |
-| shipping_first_name_kana | string      | null: false                     |
-| shipping_postal_code     | string      | null: false                     |
-| shipping_prefecture_id   | integer     | null: false                     |
-| shipping_city            | string      | null: false                     |
-| shipping_address_line1   | string      | null: false                     |
-| shipping_address_line2   | string      |                                 |
-| shipping_phone           | string      | null: false                     |
-| order                    | references  | null: false, foreign_key: true  |
-
-### Association (shipping_addresses)
-- belongs_to :order
+### Association (ingredients)
+ - has_many :menu_ingredients, dependent: :destroy
+ - has_many :menus, through: :menu_ingredients
+ - has_many :supermarket_prices, dependent: :destroy
+ - has_many :supermarkets, through: :supermarket_prices
 
 
-## paymentsテーブル
+## menu_ingredientsテーブル（メニューと食材の中間）
 
-| Column                  | Type        | Options                         |
-| ----------------------- | ----------- | ------------------------------- |
-| payment_method_id       | integer     | null: false                     |
-| payment_status_id       | integer     | null: false                     |
-| paid_at                 | datetime    | null: false                     |
-| order                   | references  | null: false, foreign_key: true  |
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| menu                    | references  |	null: false, foreign_key: true  |	対応メニュー                                   |
+| ingredient              |	references  |	null: false, foreign_key: true  |	対応食材                                       |
+| quantity                |	integer     |                                 | 分量（整数のみ）                               |
+| unit                    |	string      |                                 |	単位                                          |
 
-### Association (payments)
-- belongs_to :order
+### Association (menu_ingredients)
+ - belongs_to :menu
+ - belongs_to :ingredient
+
+
+## favorite_menusテーブル（お気に入りメニュー）
+
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| user                    |	references  |	null: false, foreign_key: true  |	登録者                                        |
+| menu                    |	references  |	null: false, foreign_key: true  |	お気に入り対象メニュー                          |
+| note                    | text        |                                 |	メモ／アレンジ記録など                          |
+
+### Association (favorite_menus)
+ - belongs_to :user
+ - belongs_to :menu
+
+
+## shopping_listsテーブル（買い物リスト）
+
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| user                    |	references  |	null: false, foreign_key: true  |	所有ユーザー                                   |
+| title                   |	string      | null: false                     |	買い物リスト名（例: 今週の夕食用）               |
+
+### Association (shopping_lists)
+ - belongs_to :user
+ - has_many :shopping_items, dependent: :destroy
+
+
+## shopping_itemsテーブル（買い物リスト内アイテム）
+
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| shopping_list           |	references  |	null: false, foreign_key: true  |	                                              |
+| name                    |	string      | null: false                     |	商品名／食材名                                 |
+| quantity                |	integer     |                                 |	数量（整数のみ）                               |
+| unit                    |	string      |                                 |	単位                                          |
+
+### Association (shopping_items)
+ - belongs_to :shopping_list
+
+
+## supermarketsテーブル（スーパー情報）
+
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| name                    |	string      | null: false                     |	スーパー名                                     |
+| address                 |	string      |                                 |	所在地（デモ用）                                |
+
+### Association (supermarkets)
+ - has_many :supermarket_prices, dependent: :destroy
+ - has_many :ingredients, through: :supermarket_prices
+
+
+## supermarket_pricesテーブル（スーパーごとの価格データ、スーパーと食材の中間）
+
+| Column                  | Type        | Options                         | explanation                                   |
+| ----------------------- | ----------- | ------------------------------- | --------------------------------------------- |
+| supermarket             |	references  |	null: false, foreign_key: true  |	スーパー                                       |
+| ingredient              |	references  |	null: false, foreign_key: true  |	食材                                          |
+| price                   |	integer     |	null: false                     |	価格（円）                                     |
+
+### Association (supermarket_prices)
+ - belongs_to :supermarket
+ - belongs_to :ingredient
