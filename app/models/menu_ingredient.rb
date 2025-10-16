@@ -1,0 +1,2 @@
+class MenuIngredient < ApplicationRecord
+end
