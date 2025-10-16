@@ -71,3 +71,7 @@ gem 'activeadmin'
 gem 'devise'
 gem 'sassc-rails'
 gem 'active_hash'
+
+group :production do
+  gem 'pg'
+end
