@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_11_071416) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_16_133658) do
   create_table "active_admin_comments", charset: "utf8mb3", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -37,9 +37,35 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_11_071416) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "ingredients", charset: "utf8mb3", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "menu_ingredients", charset: "utf8mb3", force: :cascade do |t|
+    t.bigint "menu_id", null: false
+    t.bigint "ingredient_id", null: false
+    t.integer "quantity"
+    t.string "unit"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ingredient_id"], name: "index_menu_ingredients_on_ingredient_id"
+    t.index ["menu_id"], name: "index_menu_ingredients_on_menu_id"
+  end
+
+  create_table "menus", charset: "utf8mb3", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.integer "people"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", charset: "utf8mb3", force: :cascade do |t|
-    t.string "email", null: false
-    t.string "encrypted_password", null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
@@ -50,4 +76,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_11_071416) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "menu_ingredients", "ingredients"
+  add_foreign_key "menu_ingredients", "menus"
 end
