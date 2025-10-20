@@ -46,7 +46,6 @@
 | user                    | references  | null: false, foreign_key: true  | 依頼者                                         |
 | input_text              | text        | null: false                     | 入力した食材文字列                              |
 | status                  | string      | default: "pending"              | 状態（pending/completed）                      |
-| created_at              | datetime    |                                 | 作成日時                                       |
 
 ### Association
 - belongs_to :user
