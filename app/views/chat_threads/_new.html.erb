@@ -1,0 +1,32 @@
+<%= render "shared/header" %>
+
+<h2>AIにメニュー提案を依頼</h2>
+
+<%= form_with model: @ai_request, local: true do |f| %>
+  <% if @ai_request.errors.any? %>
+    <div id="error_explanation">
+      <h3><%= pluralize(@ai_request.errors.count, "件のエラー") %>があります：</h3>
+      <ul>
+        <% @ai_request.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :input_text, "冷蔵庫にある食材" %><br>
+    <%= f.text_area :input_text, placeholder: "例）じゃがいも、にんじん、鶏むね肉", rows: 4 %>
+  </div>
+
+  <div>
+    <%= f.label :people, "何人分" %><br>
+    <%= f.number_field :people, value: 2, min: 1 %> 人前
+  </div>
+
+  <div>
+    <%= f.submit "AIに提案を依頼する" %>
+  </div>
+<% end %>
+
+<%= render "shared/footer" %>

@@ -1,0 +1,59 @@
+<%= render "shared/header" %>
+
+<h2><%= @menu.title %></h2>
+
+<p><strong>説明:</strong> <%= @menu.description %></p>
+<p><strong>分量:</strong> <%= @menu.people %> 人前</p>
+
+<hr>
+
+<h3>必要な食材</h3>
+<table>
+  <thead>
+    <tr>
+      <th>食材名</th>
+      <th>数量</th>
+      <th>単位</th>
+      <th>スーパー価格</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @menu.menu_ingredients.includes(:ingredient => :supermarket_prices).each do |mi| %>
+      <tr>
+        <td><%= mi.ingredient.name %></td>
+        <td><%= mi.quantity %></td>
+        <td><%= mi.unit %></td>
+        <td>
+          <% mi.ingredient.supermarket_prices.each do |sp| %>
+            <%= sp.supermarket.name %>: <%= sp.price %>円<br>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<hr>
+
+<% if user_signed_in? %>
+  <!-- お気に入りボタン -->
+  <% if current_user.favorite_menus.exists?(menu: @menu) %>
+    <%= button_to "お気に入り解除", favorite_menu_path(current_user.favorite_menus.find_by(menu: @menu)),
+                  method: :delete, class: "btn btn-secondary" %>
+  <% else %>
+    <%= button_to "お気に入り登録", favorite_menus_path(menu_id: @menu.id),
+                  method: :post, class: "btn btn-primary" %>
+  <% end %>
+
+  <!-- 買い物リスト追加ボタン -->
+  <%= form_with method: :post, local: true do %>
+    <%= hidden_field_tag :menu_id, @menu.id %>
+    <%= submit_tag "このメニューを買い物リストに追加", class: "btn btn-success" %>
+  <% end %>
+<% end %>
+
+<hr>
+
+<%= link_to "トップに戻る", root_path %>
+
+<%= render "shared/footer" %>

@@ -1,0 +1,2 @@
+module FavoriteMenusHelper
+end

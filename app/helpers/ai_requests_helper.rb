@@ -1,0 +1,2 @@
+module AiRequestsHelper
+end
