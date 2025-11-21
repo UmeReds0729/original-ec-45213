@@ -9,7 +9,7 @@ class ChatThreadsController < ApplicationController
   end
 
   def create
-    @chat_thread = ChatThread.create(title: 'Untitled')
+    @chat_thread = ChatThread.create(title: 'レシピを作る')
 
     if @chat_thread.persisted?
       render json: { chat_thread: @chat_thread }, status: :created

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_12_091344) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_20_145625) do
   create_table "active_admin_comments", charset: "utf8mb3", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -103,13 +103,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_12_091344) do
     t.index ["chat_thread_id"], name: "index_messages_on_chat_thread_id"
   end
 
+  create_table "products", charset: "utf8mb3", force: :cascade do |t|
+    t.string "name"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "supermarket_prices", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "supermarket_id", null: false
-    t.bigint "ingredient_id", null: false
     t.integer "price", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["ingredient_id"], name: "index_supermarket_prices_on_ingredient_id"
+    t.bigint "product_id", null: false
+    t.index ["product_id"], name: "index_supermarket_prices_on_product_id"
     t.index ["supermarket_id"], name: "index_supermarket_prices_on_supermarket_id"
   end
 
@@ -141,5 +148,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_12_091344) do
   add_foreign_key "menus", "ai_requests"
   add_foreign_key "menus", "users"
   add_foreign_key "messages", "chat_threads"
-  add_foreign_key "supermarket_prices", "ingredients"
+  add_foreign_key "supermarket_prices", "products"
 end

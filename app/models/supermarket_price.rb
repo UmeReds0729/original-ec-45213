@@ -1,4 +1,4 @@
 class SupermarketPrice < ApplicationRecord
   belongs_to :supermarket
-  belongs_to :ingredient
+  belongs_to :product
 end

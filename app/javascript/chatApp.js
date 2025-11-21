@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     messageElement.innerHTML = `
       <div class="prompt-box">
         <p class="prompt">You:</p>
-        <p class="prompt-text">${formatText(promptContent)}</p>
+        <p class="prompt-text">${formatText(promptContent + " を使ったレシピ")}</p>
       </div>
       <div class="response-box">
         <p class="response">GPT:</p>
@@ -193,12 +193,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function formatRecipeJson(rawText) {
+    // ```json や ``` を除去
+    let cleaned = rawText
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
+
+    let data;
+    try {
+      data = JSON.parse(cleaned);
+    } catch (e) {
+      return null; // ← JSONじゃない場合は普通のMarkdownとして処理
+    }
+
+    // JSONをHTMLに整形
+    let html = `<h3>${data.title || "レシピ"}</h3>`;
+
+    if (data.ingredients) {
+      html += `<h4>材料</h4><ul>`;
+      data.ingredients.forEach(item => {
+        html += `<li>${item}</li>`;
+      });
+      html += `</ul>`;
+    }
+
+    if (data.instructions) {
+      html += `<h4>作り方</h4><ol>`;
+      data.instructions.forEach(step => {
+        html += `<li>${step}</li>`;
+      });
+      html += `</ol>`;
+    }
+
+    if (data.cooking_time) {
+      html += `<p><strong>調理時間：</strong> ${data.cooking_time}</p>`;
+    }
+    if (data.calories) {
+      html += `<p><strong>カロリー：</strong> ${data.calories}</p>`;
+    }
+
+    return html;
+  }
+
   // APIの返答をアニメーションする関数。
   // 返答を解析して5mm秒に1文字ずつ描画する。
   // コードブロックにはハイライト処理を施す。
   function displayResponse(text, container) {
-    container.setAttribute('data-markdown', text);
-    const htmlContent = marked.parse(text);
+    // ★ JSONレシピの場合は、こちらでHTML整形
+    const recipeHtml = formatRecipeJson(text);
+
+    // Markdown or ノーマルテキストの場合
+    const htmlContent = recipeHtml || marked.parse(text);
+
     let currentIndex = 0;
 
     const intervalId = setInterval(() => {
@@ -345,9 +392,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // マークダウン形式のテキストをHTML形式に変換する。
   function renderMarkdown() {
     document.querySelectorAll('.response-text[data-markdown]').forEach(elem => {
-      elem.innerHTML = marked.parse(elem.textContent);
+      const raw = elem.textContent || "";
+
+      // JSONレシピなら整形
+      const recipeHtml = formatRecipeJson(raw);
+
+      // Markdown or 通常テキスト
+      const htmlContent = recipeHtml || marked.parse(raw);
+
+      elem.innerHTML = htmlContent;
     });
   }
+
 
   // スレッド一覧モーダルを非表示にする関数。
   // displayプロパティをnoneに設定してモーダルを閉じる。

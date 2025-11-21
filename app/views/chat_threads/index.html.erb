@@ -1,7 +1,5 @@
 <%= render "shared/header" %>
 
-<h2>AIにメニュー提案を依頼</h2>
-
 <% if @chat_thread %>
   <h1 id="thread-title"><%= @chat_thread.title %></h1>
   <div id="thread-controls">
@@ -16,7 +14,7 @@
           <% if message.prompt.present? && message.response.present? %>
             <div class="prompt-box">
               <p class="prompt">You:</p>
-              <p class="prompt-text"><%= message.prompt %></p>
+              <p class="prompt-text"><%= "#{message.prompt} を使ったレシピ" %></p>
             </div>
             <div class="response-box">
               <p class="response">GPT:</p>
@@ -39,14 +37,14 @@
     <button id="show-threads-btn" class="thread-control-btn">❏</button>
   </div>
   <div class="center-container">
-    <button id="new-thread-btn">Start New Chat ▶</button>
+    <button id="new-thread-btn">レシピを作る ▶</button>
   </div>
 <% end %>
 
 <div id="threads-modal">
   <div id="threads-modal-content">
     <button id="close-threads-btn">&times;</button>
-    <h2 class="modal-title">スレッド一覧</h2>
+    <h2 class="modal-title">レシピ一覧</h2>
     <div id="threads-list"></div>
   </div>
 </div>
