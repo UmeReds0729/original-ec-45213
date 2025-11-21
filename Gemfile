@@ -75,3 +75,7 @@ gem 'active_hash'
 group :production do
   gem 'pg'
 end
+
+gem 'openai'
+gem "pry-rails"
+gem "http"
