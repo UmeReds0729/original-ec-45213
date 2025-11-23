@@ -1,0 +1,42 @@
+<%= render "shared/header" %>
+
+<h1 id="thread-title"><%= @chat_thread.title %></h1>
+
+<div id="thread-controls">
+  <%= button_to "+", chat_threads_path, method: :post, class: "thread-control-btn" %>
+  <%= link_to "❏", chat_threads_path, class: "thread-control-btn" %>
+</div>
+
+<div id="chat-container">
+  <div id="messages-list">
+    <% @chat_thread.messages.each do |message| %>
+      <% if message.prompt.present? && message.response.present? %>
+        <div class="prompt-box">
+          <p class="prompt">You:</p>
+          <p class="prompt-text"><%= "#{message.prompt} を使ったレシピ" %></p>
+        </div>
+        <div class="response-box">
+          <p class="response">GPT:</p>
+          <p class="response-text" data-markdown><%= message.response %></p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% last_message = @chat_thread.messages.where.not(response: nil).last %>
+  <% if last_message.present? %>
+    <%= button_to "このレシピの材料を値段比較する",
+          price_comparison_message_path(last_message.id),
+          method: :post,
+          class: "btn-basic" %>
+  <% end %>
+</div>
+
+<%= form_with(model: [@chat_thread, @message], id: 'generation-form') do |form| %>
+  <div class="textarea-with-submit-inside">
+    <%= form.text_area :prompt, class: "rounded-corners" %>
+    <%= form.submit '↑', class: "submit-within-textarea rounded-corners" %>
+  </div>
+<% end %>
+
+<%= render "shared/footer" %>

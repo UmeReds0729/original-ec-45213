@@ -1,0 +1,32 @@
+<h2>材料の値段比較</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>材料</th>
+      <th>スーパー</th>
+      <th>価格</th>
+      <th>単位</th>
+      <th>カート</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @products.each do |product| %>
+      <% product.supermarket_prices.each do |sp| %>
+        <tr>
+          <td><%= product.name %></td>
+          <td><%= sp.supermarket.name %></td>
+          <td><%= sp.price %> 円</td>
+          <td><%= sp.unit %></td>
+          <td>
+            <%= button_to "カートに追加",
+                          cart_items_path(supermarket_price_id: sp.id),
+                          method: :post,
+                          class: "btn-basic" %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

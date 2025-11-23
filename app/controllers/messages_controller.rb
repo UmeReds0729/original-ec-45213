@@ -97,4 +97,32 @@ class MessagesController < ApplicationController
       }
     )
   end
+
+  # ★ 価格比較関連
+  def price_comparison
+    @message = Message.find(params[:id])
+  
+    # レシピの JSON をパースして ingredients 配列を抽出
+    ingredients = extract_ingredients_from_response(@message.response)
+  
+    # ingredients の名前部分だけ取り出す（例: "玉ねぎ 1個" → "玉ねぎ"）
+    ingredient_names = ingredients.map { |item| item.split(/[\s　]/).first }
+  
+    # 商品テーブルと紐づくデータを検索
+    @products = Product.includes(:supermarket_prices)
+                       .where(name: ingredient_names)
+  
+    render :price_comparison
+  end
+  
+  
+  # JSONパース用のメソッド（MessagesController内に追加）
+  def extract_ingredients_from_response(response_text)
+    cleaned = response_text.gsub(/```json/i, "").gsub(/```/, "").strip
+    json = JSON.parse(cleaned)
+    json["ingredients"] || []
+  rescue JSON::ParserError
+    []
+  end
+  
 end

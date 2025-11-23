@@ -1,0 +1,14 @@
+<%= render "shared/header" %>
+
+<h1>レシピを作る</h1>
+
+<p>使いたい材料を入力してください</p>
+
+<%= form_with url: chat_threads_path, method: :post do |form| %>
+  <div class="textarea-with-submit-inside">
+    <%= form.text_area :initial_prompt, placeholder: "例）じゃがいも 玉ねぎ", class: "rounded-corners" %>
+    <%= form.submit "作成する", class: "btn-basic" %>
+  </div>
+<% end %>
+
+<%= render "shared/footer" %>
