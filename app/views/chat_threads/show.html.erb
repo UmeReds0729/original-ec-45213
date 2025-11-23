@@ -2,10 +2,10 @@
 
 <h1 id="thread-title"><%= @chat_thread.title %></h1>
 
-<div id="thread-controls">
+<!--div id="thread-controls">
   <%= button_to "+", chat_threads_path, method: :post, class: "thread-control-btn" %>
   <%= link_to "❏", chat_threads_path, class: "thread-control-btn" %>
-</div>
+</div-->
 
 <div id="chat-container">
   <div id="messages-list">
@@ -25,10 +25,9 @@
 
   <% last_message = @chat_thread.messages.where.not(response: nil).last %>
   <% if last_message.present? %>
-    <%= button_to "このレシピの材料を値段比較する",
-          price_comparison_message_path(last_message.id),
-          method: :post,
-          class: "btn-basic" %>
+    <%= link_to "このレシピの材料を値段比較する",
+            price_comparison_message_path(last_message),
+            class: "btn" %>
   <% end %>
 </div>
 

@@ -12,6 +12,6 @@ Rails.application.routes.draw do
 
   # 価格比較用の message 単体ルーティング
   resources :messages, only: [] do
-    post :price_comparison, on: :member
+    get :price_comparison, on: :member
   end
 end

@@ -53,29 +53,60 @@ class MessagesController < ApplicationController
       render json: { error: 'APIリクエストが失敗しました' }, status: :unprocessable_entity
     end
   end
+
+  # ★ 価格比較関連
+  def price_comparison
+    puts "=== price_comparison START ==="
+    @message = Message.find(params[:id])
   
+    # ★ コードブロックを除去
+    cleaned = @message.response.gsub(/```json/i, "").gsub(/```/, "").strip
+  
+    data = JSON.parse(cleaned) rescue {}
+    
+    raw_ingredients = data["ingredients"] || []
+  
+    parsed_ingredients = raw_ingredients.map do |item|
+      parts = item.split(/\s+/, 2)
+      { "name" => parts[0], "amount" => parts[1] || "" }
+    end
+  
+    @products = parsed_ingredients.map do |ing|
+      Product.find_or_create_by(name: ing["name"])
+    end
+  end
+
+ 
   private
 
   # ★ 材料リストからレシピプロンプトを作るメソッド
   def build_recipe_prompt(raw_input)
-    # 半角/全角スペースを区切りとして材料の配列を作る
     ingredients = raw_input.split(/\s+/).join(", ")
-
+  
     <<~PROMPT
       あなたはプロの料理研究家です。
       次の材料を使ったおすすめレシピを1つ提案してください。
-
-      材料: #{ingredients}
-
-      出力は必ず次のJSON形式にしてください:
-
+  
+      材料一覧: #{ingredients}
+  
+      【重要】
+      以下のJSON形式で **必ず ingredients を使用** して返してください。
+      ingredients 以外のフィールド名は使わないでください。
+      「products」や「material」など他の名前は一切使わないでください。
+  
+      出力フォーマット（厳守）:
+      ```json
       {
         "title": "",
-        "ingredients": [],
+        "ingredients": [
+          { "name": "", "amount": "" }
+        ],
         "instructions": [],
         "cooking_time": "",
         "calories": ""
       }
+      ```
+      JSON以外の文章は書かないでください。
     PROMPT
   end
 
@@ -96,33 +127,5 @@ class MessagesController < ApplicationController
         messages: [{ role: "user", content: prompt }]
       }
     )
-  end
-
-  # ★ 価格比較関連
-  def price_comparison
-    @message = Message.find(params[:id])
-  
-    # レシピの JSON をパースして ingredients 配列を抽出
-    ingredients = extract_ingredients_from_response(@message.response)
-  
-    # ingredients の名前部分だけ取り出す（例: "玉ねぎ 1個" → "玉ねぎ"）
-    ingredient_names = ingredients.map { |item| item.split(/[\s　]/).first }
-  
-    # 商品テーブルと紐づくデータを検索
-    @products = Product.includes(:supermarket_prices)
-                       .where(name: ingredient_names)
-  
-    render :price_comparison
-  end
-  
-  
-  # JSONパース用のメソッド（MessagesController内に追加）
-  def extract_ingredients_from_response(response_text)
-    cleaned = response_text.gsub(/```json/i, "").gsub(/```/, "").strip
-    json = JSON.parse(cleaned)
-    json["ingredients"] || []
-  rescue JSON::ParserError
-    []
-  end
-  
+  end  
 end

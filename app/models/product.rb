@@ -1,3 +1,3 @@
 class Product < ApplicationRecord
-  has_many :supermarket_prices
+  has_many :supermarket_prices, dependent: :destroy
 end
