@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_23_135353) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_24_133407) do
   create_table "active_admin_comments", charset: "utf8mb3", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -88,14 +88,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_23_135353) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "recipe_ingredients", charset: "utf8mb3", force: :cascade do |t|
+    t.string "name"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name_normalized"
+    t.string "display_name"
+  end
+
   create_table "supermarket_prices", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "supermarket_id", null: false
-    t.bigint "product_id", null: false
     t.integer "price"
     t.string "unit"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["product_id"], name: "index_supermarket_prices_on_product_id"
+    t.bigint "recipe_ingredient_id", null: false
+    t.index ["recipe_ingredient_id"], name: "index_supermarket_prices_on_recipe_ingredient_id"
     t.index ["supermarket_id"], name: "index_supermarket_prices_on_supermarket_id"
   end
 
@@ -122,6 +131,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_23_135353) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "messages", "chat_threads"
-  add_foreign_key "supermarket_prices", "products"
+  add_foreign_key "supermarket_prices", "recipe_ingredients"
   add_foreign_key "supermarket_prices", "supermarkets"
 end

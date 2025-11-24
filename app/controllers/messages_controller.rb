@@ -56,14 +56,11 @@ class MessagesController < ApplicationController
 
   # ★ 価格比較関連
   def price_comparison
-    puts "=== price_comparison START ==="
     @message = Message.find(params[:id])
   
-    # ★ コードブロックを除去
     cleaned = @message.response.gsub(/```json/i, "").gsub(/```/, "").strip
-  
     data = JSON.parse(cleaned) rescue {}
-    
+  
     raw_ingredients = data["ingredients"] || []
   
     parsed_ingredients = raw_ingredients.map do |item|
@@ -71,9 +68,20 @@ class MessagesController < ApplicationController
       { "name" => parts[0], "amount" => parts[1] || "" }
     end
   
-    @products = parsed_ingredients.map do |ing|
-      Product.find_or_create_by(name: ing["name"])
+    @matched_ingredients = parsed_ingredients.map do |ing|
+      normalized = normalize_ingredient_name(ing["name"])
+      recipe_ing = RecipeIngredient.find_by(name: normalized)
+  
+      {
+        original: ing["name"],
+        normalized: normalized,
+        amount: ing["amount"],
+        recipe_ingredient: recipe_ing
+      }
     end
+  
+    # ★ 未マッチ一覧（ActiveAdminから登録できるように）
+    @unmatched = @matched_ingredients.select { |i| i[:recipe_ingredient].nil? }
   end
 
  
@@ -127,5 +135,40 @@ class MessagesController < ApplicationController
         messages: [{ role: "user", content: prompt }]
       }
     )
-  end  
+  end
+
+  # 材料名の正規化を強化したバージョン
+  def normalize_ingredient_name(raw)
+    return "" if raw.blank?
+
+    name = raw.to_s
+
+    # 数量＋単位を削除
+    name = name.gsub(/\d+([\/\.]\d+)?\s*(g|kg|ml|l|個|本|枚|滴)/i, "")
+
+    # () 内削除
+    name = name.gsub(/[\(（].*?[\)）]/, "")
+
+    # 単位表現削除
+    name = name.gsub(/小さじ|大さじ|適量|少々|各適量|ひとつまみ/, "")
+
+    # 漢字・ひらがな・カタカナのゆれを修正
+    replacements = {
+      "玉ねぎ" => "たまねぎ",
+      "玉葱"   => "たまねぎ",
+      "長ネギ" => "ねぎ",
+      "長ねぎ" => "ねぎ"
+    }
+    replacements.each { |k,v| name = name.gsub(k, v) }
+
+    # カタカナ → ひらがな変換
+    name = NKF.nkf('-W -w --hiragana', name)
+
+    # 全角 → 半角
+    name = name.tr('０-９ａ-ｚＡ-Ｚ', '0-9a-zA-Z')
+
+    # トリム
+    name.strip
+  end
+
 end

@@ -1,36 +1,42 @@
 <%= render "shared/header" %>
 
-<h2>材料の値段比較</h2>
+<h1>価格比較</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th>材料</th>
-      <th>スーパー</th>
-      <th>価格</th>
-      <th>単位</th>
-      <th>カート</th>
-    </tr>
-  </thead>
+<% if @unmatched.any? %>
+  <div style="border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+    <h3>⚠ 未マッチ食材（価格マスタ未登録）</h3>
+    <ul>
+    <% @unmatched.each do |item| %>
+      <li>
+        <%= item[:original] %>（正規化：<%= item[:normalized] %>）
+        → <%= link_to "登録する", new_admin_recipe_ingredient_path(name: item[:normalized]), target: "_blank" %>
+      </li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
 
-  <tbody>
-    <% @products.each do |product| %>
-      <% product.supermarket_prices.each do |sp| %>
+<% @matched_ingredients.each do |item| %>
+  <h3><%= item[:original] %>（<%= item[:amount] %>）</h3>
+
+  <% if item[:recipe_ingredient] %>
+    <table>
+      <tr>
+        <th>スーパー</th><th>価格</th><th>単位</th>
+      </tr>
+      <% item[:recipe_ingredient].supermarket_prices.each do |sp| %>
         <tr>
-          <td><%= product.name %></td>
           <td><%= sp.supermarket.name %></td>
-          <td><%= sp.price %> 円</td>
+          <td><%= sp.price %>円</td>
           <td><%= sp.unit %></td>
-          <td>
-            <%= button_to "カートに追加",
-                          cart_items_path(supermarket_price_id: sp.id),
-                          method: :post,
-                          class: "btn-basic" %>
-          </td>
         </tr>
       <% end %>
-    <% end %>
-  </tbody>
-</table>
+    </table>
+  <% else %>
+    <p style="color:red;">未登録</p>
+  <% end %>
+
+  <hr>
+<% end %>
 
 <%= render "shared/footer" %>
