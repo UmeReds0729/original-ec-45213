@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_24_133407) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_25_125753) do
   create_table "active_admin_comments", charset: "utf8mb3", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -95,6 +95,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_24_133407) do
     t.datetime "updated_at", null: false
     t.string "name_normalized"
     t.string "display_name"
+    t.string "canonical_name"
   end
 
   create_table "supermarket_prices", charset: "utf8mb3", force: :cascade do |t|

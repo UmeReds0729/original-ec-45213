@@ -2,20 +2,6 @@
 
 <h1>価格比較</h1>
 
-<% if @unmatched.any? %>
-  <div style="border: 1px solid red; padding: 10px; margin-bottom: 20px;">
-    <h3>⚠ 未マッチ食材（価格マスタ未登録）</h3>
-    <ul>
-    <% @unmatched.each do |item| %>
-      <li>
-        <%= item[:original] %>（正規化：<%= item[:normalized] %>）
-        → <%= link_to "登録する", new_admin_recipe_ingredient_path(name: item[:normalized]), target: "_blank" %>
-      </li>
-    <% end %>
-    </ul>
-  </div>
-<% end %>
-
 <% @matched_ingredients.each do |item| %>
   <h3><%= item[:original] %>（<%= item[:amount] %>）</h3>
 

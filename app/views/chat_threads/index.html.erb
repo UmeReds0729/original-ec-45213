@@ -2,6 +2,10 @@
 
 <h1 class="page-title">レシピ一覧</h1>
 
+<div class="center-container">
+  <%= link_to "レシピを作る ▶", new_chat_thread_path, class: "btn-create" %>
+</div>
+
 <div class="thread-list">
   <% @chat_threads.each do |thread| %>
     <div class="thread-item">
@@ -9,10 +13,6 @@
       <%= link_to "開く ▶", chat_thread_path(thread), class: "btn-basic" %>
     </div>
   <% end %>
-</div>
-
-<div class="center-container">
-  <%= link_to "レシピを作る ▶", new_chat_thread_path, class: "btn-create" %>
 </div>
 
 <%= render "shared/footer" %>
