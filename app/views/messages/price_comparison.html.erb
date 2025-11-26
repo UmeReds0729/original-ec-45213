@@ -1,0 +1,28 @@
+<%= render "shared/header" %>
+
+<h1>価格比較</h1>
+
+<% @matched_ingredients.each do |item| %>
+  <h3><%= item[:original] %>（<%= item[:amount] %>）</h3>
+
+  <% if item[:recipe_ingredient] %>
+    <table>
+      <tr>
+        <th>スーパー</th><th>価格</th><th>単位</th>
+      </tr>
+      <% item[:recipe_ingredient].supermarket_prices.each do |sp| %>
+        <tr>
+          <td><%= sp.supermarket.name %></td>
+          <td><%= sp.price %>円</td>
+          <td><%= sp.unit %></td>
+        </tr>
+      <% end %>
+    </table>
+  <% else %>
+    <p style="color:red;">未登録</p>
+  <% end %>
+
+  <hr>
+<% end %>
+
+<%= render "shared/footer" %>

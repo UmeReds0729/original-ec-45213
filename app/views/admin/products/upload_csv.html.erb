@@ -1,0 +1,10 @@
+<h3>Product CSV インポート</h3>
+
+<%= form_with url: import_csv_admin_products_path, multipart: true, local: true do |form| %>
+  <div>
+    <%= form.file_field :file %>
+  </div>
+  <div style="margin-top:10px;">
+    <%= form.submit "インポート開始" %>
+  </div>
+<% end %>

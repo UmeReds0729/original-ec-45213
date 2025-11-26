@@ -4,7 +4,14 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
   
   root to: 'chat_threads#index'
-  resources :chat_threads, only: [:index, :create, :show] do
+
+  # チャットスレッドとメッセージ作成
+  resources :chat_threads, only: [:index, :new, :create, :show] do
     resources :messages, only: [:create]
+  end
+
+  # 価格比較用の message 単体ルーティング
+  resources :messages, only: [] do
+    get :price_comparison, on: :member
   end
 end

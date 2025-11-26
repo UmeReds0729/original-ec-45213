@@ -1,0 +1,8 @@
+<h3>CSV インポート</h3>
+
+<%= form_with url: upload_path, method: :post, local: true, multipart: true do |f| %>
+  <div style="margin: 20px 0;">
+    <%= f.file_field :file %>
+  </div>
+  <%= f.submit "インポートする", class: "button" %>
+<% end %>

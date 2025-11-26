@@ -13,4 +13,16 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [:nickname])
   end
+
+  def normalize_name(name)
+    return "" if name.blank?
+
+    nkf = name.strip
+
+    # 全角 → 半角、ひらがな → カタカナ
+    nkf = nkf.tr('ぁ-ん','ァ-ン')
+    nkf = nkf.tr('０-９ａ-ｚＡ-Ｚ','0-9a-zA-Z')
+
+    nkf
+  end
 end

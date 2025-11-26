@@ -24,7 +24,6 @@ class MessagesController < ApplicationController
       if @chat_thread.messages.count == 0
         response_text = @message.response
   
-        # ```json や ``` を除去
         cleaned = response_text.gsub(/```json/i, "").gsub(/```/, "").strip
   
         begin
@@ -33,7 +32,6 @@ class MessagesController < ApplicationController
             @chat_thread.update(title: json["title"])
           end
         rescue JSON::ParserError
-          # JSONでない場合は何もしない
         end
       end
       # -----------------------------
@@ -53,29 +51,75 @@ class MessagesController < ApplicationController
       render json: { error: 'APIリクエストが失敗しました' }, status: :unprocessable_entity
     end
   end
+
+  # ===========================
+  # ★ 価格比較（正規化なし）
+  # ===========================
+  def price_comparison
+    @message = Message.find(params[:id])
   
+    cleaned = @message.response.gsub(/```json/i, "").gsub(/```/, "").strip
+    data = JSON.parse(cleaned) rescue {}
+  
+    raw_ingredients = data["ingredients"] || []
+  
+    parsed_ingredients = raw_ingredients.map do |item|
+      name, amount = item.split(/\s*-\s*/, 2)
+  
+      {
+        name: name.to_s.strip,
+        amount: amount.to_s.strip
+      }
+    end
+  
+    @matched_ingredients = parsed_ingredients.map do |ing|
+      recipe_ing = RecipeIngredient.find_by(canonical_name: ing[:name])
+  
+      {
+        original: ing[:name],
+        amount:   ing[:amount],
+        recipe_ingredient: recipe_ing
+      }
+    end
+  
+    # DEBUG
+    puts "===== PRICE COMPARISON DEBUG ====="
+    @matched_ingredients.each do |item|
+      puts "AI name: #{item[:original]} | canonical match?: #{item[:recipe_ingredient].present?}"
+    end
+    puts "=================================="
+  end
+  
+
   private
 
-  # ★ 材料リストからレシピプロンプトを作るメソッド
   def build_recipe_prompt(raw_input)
-    # 半角/全角スペースを区切りとして材料の配列を作る
     ingredients = raw_input.split(/\s+/).join(", ")
-
+  
     <<~PROMPT
       あなたはプロの料理研究家です。
       次の材料を使ったおすすめレシピを1つ提案してください。
 
-      材料: #{ingredients}
+      材料一覧: #{ingredients}
 
-      出力は必ず次のJSON形式にしてください:
+      【重要】
+      以下のJSON形式で **必ず ingredients を使用** して返してください。
+      ingredients 以外のフィールド名は使わないでください。
+      「products」や「material」など他の名前は一切使わないでください。
 
+      出力フォーマット（厳守）:
+      ```json
       {
         "title": "",
-        "ingredients": [],
+        "ingredients": [
+          { "name": "", "amount": "" }
+        ],
         "instructions": [],
         "cooking_time": "",
         "calories": ""
       }
+      ```
+      JSON以外の文章は書かないでください。
     PROMPT
   end
 
